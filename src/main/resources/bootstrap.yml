@@ -2,7 +2,8 @@ spring:
   application:
     name: debit-card
   config:
-    import: "optional:configserver:http://localhost:7000"
+    #import: "optional:configserver:http://localhost:7000"
+    import: "optional:configserver:http://dk-config-server:7000"
   cloud:
     config:
       enabled: true
