@@ -1,19 +1,14 @@
 package com.nttdata.bootcamp.controller;
 
 import com.nttdata.bootcamp.entity.DebitCard;
-import com.nttdata.bootcamp.entity.dto.SavingAccountDto;
-import com.nttdata.bootcamp.entity.dto.UpdateSavingAccountDto;
-import com.nttdata.bootcamp.util.Constant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.nttdata.bootcamp.service.DebitCardService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import java.util.Date;
-import javax.validation.Valid;
 
 @CrossOrigin(origins = "*")
 @RestController
@@ -71,7 +66,7 @@ public class DebitCardController {
 		}).onErrorReturn(dataDebit).onErrorResume(e -> Mono.just(dataDebit))
 				.onErrorMap(f -> new InterruptedException(f.getMessage())).subscribe(x -> LOGGER.info(x.toString()));
 
-		Mono<DebitCard> passiveMono = debitCardService.saveDebitCard(dataDebit);
+		Mono<DebitCard> passiveMono = debitCardService.saveDebitCard(dataDebit,true);
 		return passiveMono;
 	}
 

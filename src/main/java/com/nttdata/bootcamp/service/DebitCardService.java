@@ -14,7 +14,7 @@ public interface DebitCardService {
 
     Mono<DebitCard> findDebitCardByAccount(String accountNumber);
 
-    Mono<DebitCard> saveDebitCard(DebitCard dataDebitCard);
+    Mono<DebitCard> saveDebitCard(DebitCard dataDebitCard, Boolean main);
 
     Mono<DebitCard> updateDebitCard(DebitCard dataDebitCard);
 

@@ -46,26 +46,25 @@ public class DebitCardServiceImpl implements DebitCardService {
                 .next();
         return debitCardMono;
     }
+    public Mono<DebitCard> getLastAccountByDebitCard(String numberDebitCard) {
+        Flux<DebitCard> cardFlux= findAccountsByDebitCard(numberDebitCard);
+        return Flux.fromStream(
+                cardFlux
+                        .toStream()
+                        .sorted((y,x) -> x.getCreationDate().compareTo(y.getCreationDate())))
+                .next();
+    }
     @Override
-    public Mono<DebitCard> saveDebitCard(DebitCard dataDebitCard) {
-       /* Mono<DebitCard> debitCardMono = Mono.empty();
-        Flux<DebitCard> cardFlux= findAccountsByDebidCard(dataDebitCard.getDebitCardNumber());
-        if(cardFlux.toStream().)
-        dataDebitCard.setMainAccount(true);
-        dataDebitCard.setOrderAssociation(true);
+    public Mono<DebitCard> saveDebitCard(DebitCard dataDebitCard, Boolean main) {
+        Mono<DebitCard> debitCardMono = Mono.empty();
+        if(main)
+            dataDebitCard.setMainAccount(true);
 
+        debitCardMono = getLastAccountByDebitCard(dataDebitCard.getDebitCardNumber())
+                .flatMap(__ -> Mono.<DebitCard>error(new Error("The account does exists with the debit card")))
+                .switchIfEmpty(debitCardRepository.save(dataDebitCard));
+        return debitCardMono;
 
-
-        dataDebitCard.setCommissionMaintenance(0);
-        dataDebitCard.setMovementsMonthly(true);
-        dataDebitCard.setSaving(true);
-        dataDebitCard.setCurrentAccount(false);
-        dataDebitCard.setFixedTerm(false);
-        debitCardMono = debitCardRepository.save(dataSavingAccount);
-        return passive
-                .flatMap(__ -> Mono.<DebitCard>error(new Error("El cliente con dni " + dataSavingAccount.getDni() + " YA TIENE UNA CUENTA")))
-                .switchIfEmpty(debitCardRepository.save(dataSavingAccount));*/
-        return debitCardRepository.save(dataDebitCard);
     }
 
     @Override
