@@ -7,6 +7,7 @@ import reactor.core.publisher.Mono;
 //Interface Service
 public interface DebitCardService {
     Flux<DebitCard> findAllDebitCard();
+    Flux<DebitCard> findAllDebitCardsByCustomer(String dni);
 
     Flux<DebitCard> findAccountsByDebitCard(String debitCardNumber);
 

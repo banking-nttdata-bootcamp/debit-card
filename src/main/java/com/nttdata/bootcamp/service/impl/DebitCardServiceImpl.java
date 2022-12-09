@@ -21,6 +21,13 @@ public class DebitCardServiceImpl implements DebitCardService {
                 .findAll();
         return debitCardFlux;
     }
+    @Override
+    public Flux<DebitCard> findAllDebitCardsByCustomer(String dni) {
+        Flux<DebitCard> debitCardFlux = debitCardRepository
+                .findAll()
+                .filter(x -> x.getDni().equals(dni));
+        return debitCardFlux;
+    }
 
     @Override
     public Flux<DebitCard> findAccountsByDebitCard(String debitCardNumber) {

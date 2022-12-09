@@ -27,8 +27,15 @@ public class DebitCardController {
 		return debitCardFlux;
 	}
 
+	@GetMapping("/findAllDebitCardsByCustomer/{dni}")
+	public Flux<DebitCard> findAllDebitCardsByCustomer(@PathVariable("dni") String dni) {
+		Flux<DebitCard> debitCardFlux = debitCardService.findAllDebitCardsByCustomer(dni);
+		LOGGER.info("All Debits cards Registered by customer "+dni+": " + debitCardFlux);
+		return debitCardFlux;
+	}
+
 	//Account Registered by debit card
-	@GetMapping("/findAccountsByDebitCard/{dni}")
+	@GetMapping("/findAccountsByDebitCard/{debitCardNumber}")
 	public Flux<DebitCard> findAccountsByDebitCard(@PathVariable("debitCardNumber") String debitCardNumber) {
 		Flux<DebitCard> debitCardFlux = debitCardService.findAccountsByDebitCard(debitCardNumber);
 		LOGGER.info("Account Registered by debit card: "+debitCardNumber +"-" + debitCardFlux);
@@ -42,12 +49,7 @@ public class DebitCardController {
 		LOGGER.info("Searching main Account Products by debit card: " + debitCardNumber);
 		return debitCardService.findMainAccountsByDebitCard(debitCardNumber);
 	}
-	//Search debit card by number Account
-	@GetMapping("/findDebitCardByAccount/{accountNumber}")
-	public Mono<DebitCard> findDebitCardByAccount(@PathVariable("debitCardNumber") String debitCardNumber) {
-		LOGGER.info("Searching number debit card by account: " + debitCardNumber);
-		return debitCardService.findDebitCardByAccount(debitCardNumber);
-	}
+
 
 	//Save Debit Card
 	//@CircuitBreaker(name = "passive", fallbackMethod = "fallBackGetSaving")
@@ -68,6 +70,25 @@ public class DebitCardController {
 
 		Mono<DebitCard> passiveMono = debitCardService.saveDebitCard(dataDebit,true);
 		return passiveMono;
+	}
+	@PostMapping(value = "/associationDebitCard")
+	public Mono<DebitCard> associationDebitCard(@PathVariable("debitCardNumber") String debitCardNumber,
+												@PathVariable("numberAccount") String numberAccount,
+												@PathVariable("dni") String dni){
+
+		DebitCard dataDebit = new DebitCard();
+		Mono.just(dataDebit).doOnNext(t -> {
+					t.setDebitCardNumber(debitCardNumber);
+					t.setAccountNumber(numberAccount);
+					t.setCreationDate( new Date()) ;
+					t.setModificationDate(new Date());
+					t.setStatus("active");
+					t.setDni(dni);
+				}).onErrorReturn(dataDebit).onErrorResume(e -> Mono.just(dataDebit))
+				.onErrorMap(f -> new InterruptedException(f.getMessage())).subscribe(x -> LOGGER.info(x.toString()));
+
+		Mono<DebitCard> debitCardMono = debitCardService.saveDebitCard(dataDebit,false);
+		return debitCardMono;
 	}
 
 	//Update main account of debit card
