@@ -12,7 +12,7 @@ import java.util.Date;
 
 @CrossOrigin(origins = "*")
 @RestController
-@RequestMapping(value = "/debitCard")
+@RequestMapping(value = "/debit-card")
 public class DebitCardController {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(DebitCardController.class);
