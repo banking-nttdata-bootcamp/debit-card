@@ -9,9 +9,9 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.nttdata.bootcamp</groupId>
-	<artifactId>debitCard</artifactId>
+	<artifactId>debit-card</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>debitCard</name>
+	<name>debit-card</name>
 	<description>Microservicios</description>
 	<properties>
 		<java.version>11</java.version>
