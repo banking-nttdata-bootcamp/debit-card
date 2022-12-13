@@ -104,7 +104,7 @@ public class DebitCardController {
 		}).onErrorReturn(dataDebitCard).onErrorResume(e -> Mono.just(dataDebitCard))
 				.onErrorMap(f -> new InterruptedException(f.getMessage())).subscribe(x -> LOGGER.info(x.toString()));
 
-		Mono<DebitCard> updatePassive = debitCardService.updateDebitCard(dataDebitCard);
+		Mono<DebitCard> updatePassive = debitCardService.updateMainDebitCard(dataDebitCard);
 		return updatePassive;
 	}
 

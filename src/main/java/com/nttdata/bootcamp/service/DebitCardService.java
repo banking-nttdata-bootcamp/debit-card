@@ -17,6 +17,6 @@ public interface DebitCardService {
 
     Mono<DebitCard> saveDebitCard(DebitCard dataDebitCard, Boolean main);
 
-    Mono<DebitCard> updateDebitCard(DebitCard dataDebitCard);
+    Mono<DebitCard> updateMainDebitCard(DebitCard dataDebitCard);
 
 }

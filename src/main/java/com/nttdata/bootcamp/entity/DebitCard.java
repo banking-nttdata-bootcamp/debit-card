@@ -27,7 +27,6 @@ public class DebitCard {
     private String debitCardNumber;
 
     private Boolean mainAccount;
-    private Number orderAssociation;
 
     private String status;
 

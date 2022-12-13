@@ -29,11 +29,13 @@ public class DebitCardServiceImpl implements DebitCardService {
         return debitCardFlux;
     }
 
+    //All account by debitCard order by creation date
     @Override
     public Flux<DebitCard> findAccountsByDebitCard(String debitCardNumber) {
-        Flux<DebitCard> debitCardFlux = debitCardRepository
+        Flux<DebitCard> debitCardFlux = Flux.fromStream(debitCardRepository
                 .findAll()
-                .filter(x -> x.getDebitCardNumber().equals(debitCardNumber));
+                .filter(x -> x.getDebitCardNumber().equals(debitCardNumber))
+                .toStream().sorted((x,y) -> x.getCreationDate().compareTo(y.getCreationDate())));
         return debitCardFlux;
     }
 
@@ -61,21 +63,22 @@ public class DebitCardServiceImpl implements DebitCardService {
                         .sorted((y,x) -> x.getCreationDate().compareTo(y.getCreationDate())))
                 .next();
     }
+    //save debit card
+    //then main account is false by default
     @Override
     public Mono<DebitCard> saveDebitCard(DebitCard dataDebitCard, Boolean main) {
         Mono<DebitCard> debitCardMono = Mono.empty();
         if(main)
-            dataDebitCard.setMainAccount(true);
-
+            dataDebitCard.setMainAccount(false);
         debitCardMono = getLastAccountByDebitCard(dataDebitCard.getDebitCardNumber())
                 .flatMap(__ -> Mono.<DebitCard>error(new Error("The account does exists with the debit card")))
                 .switchIfEmpty(debitCardRepository.save(dataDebitCard));
         return debitCardMono;
 
     }
-
+    //change main account of the debit card
     @Override
-    public Mono<DebitCard> updateDebitCard(DebitCard dataSavingAccount) {
+    public Mono<DebitCard> updateMainDebitCard(DebitCard dataSavingAccount) {
         Mono<DebitCard> debitCardMono = findDebitCardByAccount(dataSavingAccount.getAccountNumber());
         try{
             DebitCard debitCard = debitCardMono.block();
