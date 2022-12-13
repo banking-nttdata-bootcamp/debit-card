@@ -1,4 +1,4 @@
 FROM adoptopenjdk/openjdk11:alpine-slim
 EXPOSE 7000
-ADD target/debitCard-0.0.1-SNAPSHOT.jar app.jar
+ADD target/debit-card-0.0.1-SNAPSHOT.jar app.jar
 ENTRYPOINT ["java", "-jar","/app.jar"]
