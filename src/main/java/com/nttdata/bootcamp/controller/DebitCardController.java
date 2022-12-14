@@ -1,6 +1,7 @@
 package com.nttdata.bootcamp.controller;
 
 import com.nttdata.bootcamp.entity.DebitCard;
+import com.nttdata.bootcamp.util.Constant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.nttdata.bootcamp.service.DebitCardService;
@@ -9,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import java.util.Date;
+import com.nttdata.bootcamp.entity.dto.DebitCardDto;
 
 @CrossOrigin(origins = "*")
 @RestController
@@ -43,7 +45,7 @@ public class DebitCardController {
 	}
 
 	//Search main Account by Credit Card
-	//@CircuitBreaker(name = "passive", fallbackMethod = "fallBackGetSaving")
+	//@CircuitBreaker(name = "passive", fallbackMethod = "fallBackGetDebitCard")
 	@GetMapping("/findMainAccountsByDebitCard/{accountNumber}")
 	public Mono<DebitCard> findMainAccountsByDebitCard(@PathVariable("debitCardNumber") String debitCardNumber) {
 		LOGGER.info("Searching main Account Products by debit card: " + debitCardNumber);
@@ -52,9 +54,9 @@ public class DebitCardController {
 
 
 	//Save Debit Card
-	//@CircuitBreaker(name = "passive", fallbackMethod = "fallBackGetSaving")
+	//@CircuitBreaker(name = "passive", fallbackMethod = "fallBackGetDebitCard")
 	@PostMapping(value = "/saveDebitCard")
-	public Mono<DebitCard> saveDebitCard(@RequestBody DebitCard debitCard){
+	public Mono<DebitCard> saveDebitCard(@RequestBody DebitCardDto debitCard){
 
 		DebitCard dataDebit = new DebitCard();
 		Mono.just(dataDebit).doOnNext(t -> {
@@ -62,7 +64,8 @@ public class DebitCardController {
 			t.setTypeCustomer(debitCard.getTypeCustomer());
 			t.setAccountNumber(debitCard.getAccountNumber());
 			t.setDebitCardNumber(debitCard.getDebitCardNumber());
-			t.setStatus("active");
+			t.setStatus(Constant.DEBITCARD_ACTIVE);
+			t.setMainAccount(true);
 			t.setCreationDate(new Date());
 			t.setModificationDate(new Date());
 		}).onErrorReturn(dataDebit).onErrorResume(e -> Mono.just(dataDebit))
@@ -82,7 +85,8 @@ public class DebitCardController {
 					t.setAccountNumber(numberAccount);
 					t.setCreationDate( new Date()) ;
 					t.setModificationDate(new Date());
-					t.setStatus("active");
+					t.setStatus(Constant.DEBITCARD_ACTIVE);
+					t.setMainAccount(true);
 					t.setDni(dni);
 				}).onErrorReturn(dataDebit).onErrorResume(e -> Mono.just(dataDebit))
 				.onErrorMap(f -> new InterruptedException(f.getMessage())).subscribe(x -> LOGGER.info(x.toString()));
@@ -92,7 +96,7 @@ public class DebitCardController {
 	}
 
 	//Update main account of debit card
-	//@CircuitBreaker(name = "passive", fallbackMethod = "fallBackGetSaving")
+	//@CircuitBreaker(name = "passive", fallbackMethod = "fallBackGetDebitCard")
 	@PutMapping("/updateSavingAccount/{accountNumber}")
 	public Mono<DebitCard> updateSavingAccount(@PathVariable("accountNumber") String accountNumber){
 
@@ -108,7 +112,7 @@ public class DebitCardController {
 		return updatePassive;
 	}
 
-	private Mono<DebitCard> fallBackGetSaving(Exception e){
+	private Mono<DebitCard> fallBackGetDebitCard(Exception e){
 		DebitCard debitCard = new DebitCard();
 		Mono<DebitCard> staffMono= Mono.just(debitCard);
 		return staffMono;
