@@ -82,7 +82,7 @@ public class DebitCardServiceImpl implements DebitCardService {
         Mono<DebitCard> debitCardMono = findDebitCardByAccount(dataSavingAccount.getAccountNumber());
         try{
             DebitCard debitCard = debitCardMono.block();
-            debitCard.setMainAccount(true);
+            debitCard.setMainAccount(dataSavingAccount.getMainAccount());
             debitCard.setModificationDate(dataSavingAccount.getModificationDate());
             return debitCardRepository.save(debitCard);
         }catch (Exception e){

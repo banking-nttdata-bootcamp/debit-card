@@ -52,6 +52,12 @@ public class DebitCardController {
 		return debitCardService.findMainAccountsByDebitCard(debitCardNumber);
 	}
 
+	@GetMapping("/findByAccountNumber/{accountNumber}")
+	public Mono<DebitCard> findByAccountNumber(@PathVariable("debitCardNumber") String debitCardNumber) {
+		LOGGER.info("Searching main Account Products by debit card: " + debitCardNumber);
+		return debitCardService.findMainAccountsByDebitCard(debitCardNumber);
+	}
+
 
 	//Save Debit Card
 	//@CircuitBreaker(name = "passive", fallbackMethod = "fallBackGetDebitCard")
@@ -65,7 +71,7 @@ public class DebitCardController {
 			t.setAccountNumber(debitCard.getAccountNumber());
 			t.setDebitCardNumber(debitCard.getDebitCardNumber());
 			t.setStatus(Constant.DEBITCARD_ACTIVE);
-			t.setMainAccount(true);
+			t.setMainAccount(false);
 			t.setCreationDate(new Date());
 			t.setModificationDate(new Date());
 		}).onErrorReturn(dataDebit).onErrorResume(e -> Mono.just(dataDebit))
@@ -76,8 +82,25 @@ public class DebitCardController {
 	}
 	@PostMapping(value = "/associationDebitCard")
 	public Mono<DebitCard> associationDebitCard(@PathVariable("debitCardNumber") String debitCardNumber,
-												@PathVariable("numberAccount") String numberAccount,
-												@PathVariable("dni") String dni){
+												@PathVariable("numberAccount") String numberAccount){
+		DebitCard dataDebit = new DebitCard();
+
+		Mono.just(dataDebit).doOnNext(t -> {
+					t.setDebitCardNumber(debitCardNumber);
+					t.setAccountNumber(numberAccount);
+					t.setCreationDate( new Date()) ;
+					t.setModificationDate(new Date());
+					t.setStatus(Constant.DEBITCARD_ACTIVE);
+					t.setMainAccount(true);
+				}).onErrorReturn(dataDebit).onErrorResume(e -> Mono.just(dataDebit))
+				.onErrorMap(f -> new InterruptedException(f.getMessage())).subscribe(x -> LOGGER.info(x.toString()));
+
+		Mono<DebitCard> debitCardMono = debitCardService.updateMainDebitCard(dataDebit);
+		return debitCardMono;
+	}
+	@PostMapping(value = "/deleteAssociationDebitCard")
+	public Mono<DebitCard> deleteAssociationDebitCard(@PathVariable("debitCardNumber") String debitCardNumber,
+												@PathVariable("numberAccount") String numberAccount){
 
 		DebitCard dataDebit = new DebitCard();
 		Mono.just(dataDebit).doOnNext(t -> {
@@ -86,31 +109,15 @@ public class DebitCardController {
 					t.setCreationDate( new Date()) ;
 					t.setModificationDate(new Date());
 					t.setStatus(Constant.DEBITCARD_ACTIVE);
-					t.setMainAccount(true);
-					t.setDni(dni);
+					t.setMainAccount(false);
 				}).onErrorReturn(dataDebit).onErrorResume(e -> Mono.just(dataDebit))
 				.onErrorMap(f -> new InterruptedException(f.getMessage())).subscribe(x -> LOGGER.info(x.toString()));
 
-		Mono<DebitCard> debitCardMono = debitCardService.saveDebitCard(dataDebit,false);
+		Mono<DebitCard> debitCardMono = debitCardService.updateMainDebitCard(dataDebit);
 		return debitCardMono;
 	}
 
-	//Update main account of debit card
-	//@CircuitBreaker(name = "passive", fallbackMethod = "fallBackGetDebitCard")
-	@PutMapping("/updateSavingAccount/{accountNumber}")
-	public Mono<DebitCard> updateSavingAccount(@PathVariable("accountNumber") String accountNumber){
 
-		DebitCard dataDebitCard = new DebitCard();
-		Mono.just(dataDebitCard).doOnNext(t -> {
-					t.setAccountNumber(accountNumber);
-					t.setModificationDate(new Date());
-			t.setModificationDate(new Date());
-		}).onErrorReturn(dataDebitCard).onErrorResume(e -> Mono.just(dataDebitCard))
-				.onErrorMap(f -> new InterruptedException(f.getMessage())).subscribe(x -> LOGGER.info(x.toString()));
-
-		Mono<DebitCard> updatePassive = debitCardService.updateMainDebitCard(dataDebitCard);
-		return updatePassive;
-	}
 
 	private Mono<DebitCard> fallBackGetDebitCard(Exception e){
 		DebitCard debitCard = new DebitCard();
